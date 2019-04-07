@@ -216,10 +216,12 @@ if ($meta_description) {
     ?>"/>
     <?php
 }
+
+if($title == ""){
+  $title = elgg_extract('title', $vars);
+}
 ?>
-<title><?php
-    echo $title;
-    ?></title>
+<title><?php echo $title; ?></title>
 <meta name="author" content="<?php
 if (empty($user->name)) {
     echo $site_name;

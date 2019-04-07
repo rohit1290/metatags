@@ -8,14 +8,11 @@
  * Website: https://www.centillien.com
  */
 
-require_once(dirname(__FILE__) . '/lib/functions.php');
+require_once __DIR__ . '/lib/functions.php';
 
 elgg_register_event_handler('init', 'system', 'metatagsgen_init');
 
-function metatagsgen_init()
-{
-
-    elgg_register_library('elgg:metatags', elgg_get_plugins_path() . 'metatags/lib/metadescription.php');
+function metatagsgen_init(){
 
     elgg_extend_view('page/elements/head', 'metatagsgen/metatags');
 
