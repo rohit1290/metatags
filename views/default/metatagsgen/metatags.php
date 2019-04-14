@@ -160,10 +160,10 @@ switch ($context) {
                 'type' => 'user',
                 'full_view' => FALSE
             );
-            $num_friends = count(elgg_get_entities_from_relationship($options));
+            $num_friends = count(elgg_get_entities($options));
             $options['offset'] = $offset;
             $options['limit'] = 7;
-            $friends = elgg_get_entities_from_relationship($options);
+            $friends = elgg_get_entities($options);
             if ($friends) {
                 $meta_description = $user->name . " heeft " . $num_friends . "  connecties op  $site_name. Misschien ken je " . $user->name . " ook of ";
                 foreach ($friends as $u) {
