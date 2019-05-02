@@ -250,8 +250,6 @@ if (!empty($user->name) && !in_array($context, $contexts)) {
     echo $user->getIconURL('large');
 } else if (strpos($mainpage_image, '://') !== false) {
     echo $mainpage_image;
-} else {
-    echo elgg_get_site_url() . "_graphics/" . $mainpage_image;
 }
 ?>"/>
 <link rel="author" href="<?php

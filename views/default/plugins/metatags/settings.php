@@ -45,5 +45,5 @@
         echo elgg_view('input/text', array('name'=>'params[mainpage_keywords]', 'value'=>$mainpage_keywords));
 	echo '<br><br>';
         echo elgg_echo('metatags:mainpage:image');
-        echo elgg_view('input/text', array('name'=>'params[mainpage_image]', 'value'=>$mainpage_image));
+        echo elgg_view('input/url', array('name'=>'params[mainpage_image]', 'value'=>$mainpage_image));
 
