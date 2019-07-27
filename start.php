@@ -12,7 +12,7 @@ require_once __DIR__ . '/lib/functions.php';
 
 elgg_register_event_handler('init', 'system', 'metatagsgen_init');
 
-function metatagsgen_init(){
+function metatagsgen_init() {
 
     elgg_extend_view('page/elements/head', 'metatagsgen/metatags');
 
@@ -27,10 +27,9 @@ function metatagsgen_init(){
     elgg_register_plugin_hook_handler('view_vars', 'all', 'metatags_view_guid');
 }
 
-function metatags_user_icon_url_override($hook, $type, $returnvalue, $params)
-{
-    $user = $params['entity'];
-    $size = $params['size'];
+function metatags_user_icon_url_override(\Elgg\Hook $hook) {
+    $user = $hook->getParam('entity');
+    $size = $hook->getParam('size');
 
     if (isset($user->externalPhoto)) {
         // return thumbnail
@@ -44,11 +43,10 @@ function metatags_user_icon_url_override($hook, $type, $returnvalue, $params)
     }
 }
 
-function metatags_view_guid($hook, $type, $vars, $params)
-{
-    if (isset($vars['guid']) && get_input('guid', false) === false) {
-        set_input('guid', $vars['guid']);
+function metatags_view_guid(\Elgg\Hook $hook) {
+  $return_value = $hook->getValue();
+    if (isset($return_value['guid']) && get_input('guid', false) === false) {
+        set_input('guid', $return_value['guid']);
     }
-
-    return $vars;
+    return $return_value;
 }
