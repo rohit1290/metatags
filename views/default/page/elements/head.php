@@ -11,31 +11,31 @@
 unset ($vars['metas']['description']);
 
 
-$metas = elgg_extract('metas', $vars, array());
-$links = elgg_extract('links', $vars, array());
+$metas = elgg_extract('metas', $vars, []);
+$links = elgg_extract('links', $vars, []);
 
 //echo elgg_format_element('title', array(), $vars['title'], array('encode_text' => true));
 foreach ($metas as $attributes) {
-        echo elgg_format_element('meta', $attributes);
+		echo elgg_format_element('meta', $attributes);
 }
 foreach ($links as $attributes) {
-        echo elgg_format_element('link', $attributes);
+		echo elgg_format_element('link', $attributes);
 }
 
 $stylesheets = elgg_get_loaded_css();
 
 foreach ($stylesheets as $url) {
-        echo elgg_format_element('link', array('rel' => 'stylesheet', 'href' => $url));
+		echo elgg_format_element('link', ['rel' => 'stylesheet', 'href' => $url]);
 }
 
 // A non-empty script *must* come below the CSS links, otherwise Firefox will exhibit FOUC
 // See https://github.com/Elgg/Elgg/issues/8328
 ?>
 <script>
-        <?php // Do not convert this to a regular function declaration. It gets redefined later. ?>
-        require = function () {
-                // handled in the view "elgg.js"
-                _require_queue.push(arguments);
-        };
-        _require_queue = [];
+		<?php // Do not convert this to a regular function declaration. It gets redefined later. ?>
+		require = function () {
+				// handled in the view "elgg.js"
+				_require_queue.push(arguments);
+		};
+		_require_queue = [];
 </script>

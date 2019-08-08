@@ -12,45 +12,45 @@ $user = elgg_get_page_owner_entity();
 $mainpage_image = elgg_get_plugin_setting("mainpage_image", "metatags");
 $guid = elgg_extract('guid', $vars, null);
 $cguid = elgg_extract('container_guid', $vars, null);
-if($guid != null){
-  $entity = get_entity($guid);
-} else if($cguid != null){
-   $entity = get_entity($cguid);
+if ($guid != null) {
+	$entity = get_entity($guid);
+} else if ($cguid != null) {
+	$entity = get_entity($cguid);
 } else {
-  $entity = $vars['entity'];
+	$entity = $vars['entity'];
 }
 $site_name = elgg_get_site_entity()->name;
 
 // Title
-if($title == ""){
-  $title = $site_name;
+if ($title == "") {
+	$title = $site_name;
 }
 
 // Description
 $meta_description = elgg_get_plugin_setting("mainpage_description", "metatags");
-if($entity != null){
-  $meta_description = elgg_get_excerpt($entity->description);
+if ($entity != null) {
+	$meta_description = elgg_get_excerpt($entity->description);
 }
 // Author
 if (empty($user->name)) {
-    $author = $site_name;
+	$author = $site_name;
 } else {
-    $author = $user->name;
+	$author = $user->name;
 }
 
 // Image
 if (!empty($user->name)) {
-    $mainpage_image = $user->getIconURL('large');
+	$mainpage_image = $user->getIconURL('large');
 }
 
 // keywords
 $tags = elgg_get_context();
-if($entity !== null){
-  $tags .= ",".implode(",", $entity->tags);
+if ($entity !== null) {
+	$tags .= ",".implode(",", $entity->tags);
 }
 $tags .= "," . $user->name . ",". $user->location;
 $tags .= ",".elgg_get_plugin_setting("mainpage_keywords", "metatags");
-$tags = implode(",",array_filter(explode(",",$tags)));
+$tags = implode(",", array_filter(explode(",", $tags)));
 ?>
 <title><?php echo $title; ?></title>
 <link rel="author" href="<?php echo $user->website ?>"/>
