@@ -10,7 +10,7 @@
 				"no" => elgg_echo("option:no"),
 				"yes" => elgg_echo("option:yes")
 		];
-	
+
 		$mainpage_title = elgg_get_plugin_setting("mainpage_title", "metatags");
 		$mainpage_description = elgg_get_plugin_setting("mainpage_description", "metatags");
 		$mainpage_image = elgg_get_plugin_setting("mainpage_image", "metatags");
