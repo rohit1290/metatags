@@ -48,3 +48,28 @@ function smart_trim($string, $truncation) {
 		return $string;
 	}
 }
+
+function metatags_user_icon_url_override(\Elgg\Hook $hook) {
+	$user = $hook->getParam('entity');
+	$size = $hook->getParam('size');
+
+	if (isset($user->externalPhoto)) {
+		// return thumbnail
+		return $user->externalPhoto;
+	} else {
+		if (isset($user->icontime)) {
+			return "avatar/view/$user->username/$size/$user->icontime.jpg";
+		} else {
+			return "_graphics/icons/user/default{$size}.gif";
+		}
+	}
+}
+
+function metatags_view_guid(\Elgg\Hook $hook) {
+	$return_value = $hook->getValue();
+	if (isset($return_value['guid']) && get_input('guid', false) === false) {
+		set_input('guid', $return_value['guid']);
+	}
+	return $return_value;
+}
+
