@@ -12,10 +12,10 @@ $user = elgg_get_page_owner_entity();
 $mainpage_image = elgg_get_plugin_setting("mainpage_image", "metatags");
 $guid = elgg_extract('guid', $vars, null);
 $cguid = elgg_extract('container_guid', $vars, null);
-if ($guid != null) {
-	$entity = get_entity($guid);
-} else if ($cguid != null) {
+if ($cguid != null) {
 	$entity = get_entity($cguid);
+} else if ($guid != null) {
+	$entity = get_entity($guid);
 } else {
 	$entity = $vars['entity'];
 }
@@ -39,7 +39,9 @@ if (empty($user->name)) {
 }
 
 // Image
-if (!empty($user->name)) {
+if ($entity != null) {
+	$mainpage_image = $entity->getIconURL('large');
+} else if (!empty($user->name)) {
 	$mainpage_image = $user->getIconURL('large');
 }
 
