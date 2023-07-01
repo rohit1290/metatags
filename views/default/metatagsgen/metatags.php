@@ -17,7 +17,7 @@ if ($cguid != null) {
 } else if ($guid != null) {
 	$entity = get_entity($guid);
 } else {
-	$entity = $vars['entity'];
+	$entity = elgg_extract('entity', $vars, null);
 }
 $site_name = elgg_get_site_entity()->name;
 
@@ -50,24 +50,26 @@ $tags = elgg_get_context();
 if ($entity !== null) {
 	$tags .= ",".implode(",", $entity->tags);
 }
-$tags .= "," . $user->name . ",". $user->location;
+if($user != null) {
+	$tags .= "," . $user->name . ",". $user->location;
+}
 $tags .= ",".elgg_get_plugin_setting("mainpage_keywords", "metatags");
 $tags = implode(",", array_filter(explode(",", $tags)));
 ?>
 <title><?php echo $title; ?></title>
-<link rel="author" href="<?php echo $user->website ?>"/>
+<link rel="author" href="<?php echo $author ?>"/>
 <meta name="author" content="<?php echo $author ?>"/>
 <meta name="keywords" content="<?php echo $tags ?>"/>
 
 <meta property="og:title" content="<?php echo $title ?>"/>
 <meta property="og:description" content="<?php echo $meta_description ?>"/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="<?php echo current_page_url(); ?>"/>
+<meta property="og:url" content="<?php echo elgg_get_current_url(); ?>"/>
 <meta property="og:image" content="<?php echo $mainpage_image ?>"/>
 <meta property="og:site_name" content="<?php echo $site_name ?>"/>
 
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="<?php echo $title ?>" />
 <meta name="twitter:description" content="<?php echo $meta_description?>" />
-<meta name="twitter:url" content="<?php echo current_page_url(); ?>" />
+<meta name="twitter:url" content="<?php echo elgg_get_current_url(); ?>" />
 <meta name="twitter:image" content="<?php echo $mainpage_image ?>" />
