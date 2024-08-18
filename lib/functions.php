@@ -49,9 +49,9 @@ function smart_trim($string, $truncation) {
 	}
 }
 
-function metatags_user_icon_url_override(\Elgg\Hook $hook) {
-	$user = $hook->getParam('entity');
-	$size = $hook->getParam('size');
+function metatags_user_icon_url_override(\Elgg\Event $event) {
+	$user = $event->getParam('entity');
+	$size = $event->getParam('size');
 
 	if (isset($user->externalPhoto)) {
 		// return thumbnail
@@ -65,8 +65,8 @@ function metatags_user_icon_url_override(\Elgg\Hook $hook) {
 	}
 }
 
-function metatags_view_guid(\Elgg\Hook $hook) {
-	$return_value = $hook->getValue();
+function metatags_view_guid(\Elgg\Event $event) {
+	$return_value = $event->getValue();
 	if (isset($return_value['guid']) && get_input('guid', false) === false) {
 		set_input('guid', $return_value['guid']);
 	}
