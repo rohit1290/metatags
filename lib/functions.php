@@ -1,75 +1,71 @@
 <?php
-//Function to help make clean descriptions
-//This function intelligently trims a body of text to a certain
-//number of words, but will not break a sentence.
-function smart_trim($string, $truncation) {
-	$matches = preg_split("/\s+/", $string);
-	$count = count($matches);
-
-	if ($count > $truncation) {
-		//Grab the last word; we need to determine if
-		//it is the end of the sentence or not
-		$last_word = strip_tags($matches[$truncation-1]);
-		$lw_count = strlen($last_word);
-
-		//The last word in our truncation has a sentence ender
-		if ($last_word[$lw_count-1] == "." || $last_word[$lw_count-1] == "?" || $last_word[$lw_count-1] == "!") {
-			for ($i=$truncation; $i<$count; $i++) {
-				unset($matches[$i]);
-			}
-
-		//The last word in our truncation doesn't have a sentence ender, find the next one
-		} else {
-			//Check each word following the last word until
-			//we determine a sentence's ending
-			for ($i=($truncation); $i<$count; $i++) {
-				if ($ending_found != true) {
-					$len = strlen(strip_tags($matches[$i]));
-					if ($matches[$i][$len-1] == "." || $matches[$i][$len-1] == "?" || $matches[$i][$len-1] == "!") {
-						//Test to see if the next word starts with a capital
-						if ($matches[$i+1][0] == strtoupper($matches[$i+1][0])) {
-							$ending_found = true;
-						}
-					}
-				} else {
-					unset($matches[$i]);
-				}
-			}
-		}
-
-		//Check to make sure we still have a closing <p> tag at the end
-		$body = implode(' ', $matches);
-		if (substr($body, -4) != "</p>") {
-			$body = $body."</p>";
-		}
-
-		return $body;
-	} else {
-		return $string;
+/**
+* Smartly trim a string without cutting sentences mid-way
+*
+* @param string $string
+* @param int    $max_words
+*
+* @return string
+*/
+function smart_trim(string $string, int $max_words = 30): string {
+	$words = preg_split('/\s+/', strip_tags($string));
+	$count = count($words);
+	
+	if ($count <= $max_words) {
+		return trim($string);
 	}
+	
+	$excerpt = array_slice($words, 0, $max_words);
+	$last_word = end($excerpt);
+	
+	// If the last word ends with punctuation, keep it
+	if (preg_match('/[.!?]$/', $last_word)) {
+		return implode(' ', $excerpt);
+	}
+	
+	// Otherwise, keep adding until sentence ends or limit reached
+	for ($i = $max_words; $i < $count; $i++) {
+		$excerpt[] = $words[$i];
+		if (preg_match('/[.!?]$/', $words[$i])) {
+			break;
+		}
+	}
+	
+	return implode(' ', $excerpt);
 }
 
+/**
+* Override user icon URL with external photo if available
+*/
+/*
 function metatags_user_icon_url_override(\Elgg\Event $event) {
-	$user = $event->getParam('entity');
-	$size = $event->getParam('size');
-
-	if (isset($user->externalPhoto)) {
-		// return thumbnail
-		return $user->externalPhoto;
-	} else {
-		if (isset($user->icontime)) {
-			return "avatar/view/$user->username/$size/$user->icontime.jpg";
-		} else {
-			return "_graphics/icons/user/default{$size}.gif";
-		}
+	$entity = $event->getParam('entity');
+	$size = $event->getParam('size', 'medium');
+	
+	if (!$entity instanceof \ElggUser) {
+		return null;
 	}
+	
+	// Use external photo if set
+	if (!empty($entity->externalPhoto)) {
+		return $entity->externalPhoto;
+	}
+	
+	// Otherwise fallback to default Elgg behavior
+	return elgg_generate_entity_icon_url($entity, $size);
 }
+*/
 
+/**
+* Ensure 'guid' input is available in views where needed
+*/
 function metatags_view_guid(\Elgg\Event $event) {
 	$return_value = $event->getValue();
-	if (isset($return_value['guid']) && get_input('guid', false) === false) {
-		set_input('guid', $return_value['guid']);
+	
+	if (!empty($return_value['guid']) && !get_input('guid')) {
+		elgg_set_input('guid', (int) $return_value['guid']);
 	}
+	
 	return $return_value;
 }
 

@@ -5,17 +5,23 @@
  * @package Metatags
  */
 
-return array(
+return [
 	//Mainpage settings
-	'metatags:mainpage:title' => 'Provide a catchy title for the index page',
-	'metatags:mainpage:keywords' => 'Provide some keywords that would describe your site. They will be used for the frontpage',
-	'metatags:mainpage:description' => 'Provide a catching description for your site. Tip, use existing words that are on the main page for better results',
-	'metatags:mainpage:image' => 'Give the filename of an image that represents your site.',
-	'metatags:cloudflare' => 'Do you want fixed avatar URLs ?',
-
+	'metatags:cloudflare' => "Enable Cloudflare",
+	'metatags:mainpage:title' => "Site Title",
+	'metatags:mainpage:description' => "Site Description",
+	'metatags:mainpage:keywords' => "Site Keywords",
+	'metatags:mainpage:image' => "Site Image",
+	
+	'metatags:mainpage:author' => 'Provide a default author name for your site (used in meta tags)',
+	'metatags:mainpage:robots' => 'Define indexing rules (index, follow / noindex, nofollow)',
+	'metatags:mainpage:twitter' => 'Provide a Twitter handle (@username) for Twitter Cards',
+	'metatags:mainpage:facebook' => 'Provide your Facebook page/app ID for Open Graph',
+	'metatags:mainpage:site_name' => 'Provide your site name for structured meta tags',
+	
 	//setttings voor plugins
 	'blog:message:description' => 'published a  news article',
 	'blog:title:preformat' => 'Blog section - %s',
 	'market:message:description' => 'wants to share this offering',
 	'market:title:preformat' => '%s - advertising',
-);
+];

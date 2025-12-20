@@ -1,48 +1,71 @@
 <?php
-		/**
-		 * Elgg metatags plugin
-		 *
-		 * @author Gerard Kanters
-		 * @copyright Centillien 2013
-		 */
+/**
+ * Elgg Metatags Plugin Settings (Elgg 6.3+)
+ *
+ * @author
+ */
 
-		$noyes_options = [
-				"no" => elgg_echo("option:no"),
-				"yes" => elgg_echo("option:yes")
-		];
+$plugin = elgg_extract('entity', $vars);
 
-		$mainpage_title = elgg_get_plugin_setting("mainpage_title", "metatags");
-		$mainpage_description = elgg_get_plugin_setting("mainpage_description", "metatags");
-		$mainpage_image = elgg_get_plugin_setting("mainpage_image", "metatags");
-		$mainpage_keywords = elgg_get_plugin_setting("mainpage_keywords", "metatags");
+$noyes_options = [
+    "no" => elgg_echo("option:no"),
+    "yes" => elgg_echo("option:yes"),
+];
 
-		if (empty($mainpage_title)) {
-			$mainpage_title = elgg_get_site_entity()->name ." - Social Network";
-		}
+$defaults = [
+    'mainpage_title' => elgg_get_site_entity()->name . " - Social Network",
+    'mainpage_description' => elgg_get_site_entity()->name . " is a social network for people with interest in ....",
+    'mainpage_keywords' => "social network, join, register, members, " . elgg_get_site_entity()->name,
+    'mainpage_image' => '',
+    'cloudflare' => 'no',
+];
 
-		if (empty($mainpage_description)) {
-			$mainpage_description = elgg_get_site_entity()->name ." is a social network for people with interest in ....";
-		}
+// Merge plugin settings with defaults
+$values = [];
+foreach ($defaults as $key => $default) {
+    $values[$key] = $plugin->$key ?? $default;
+}
 
-		if (empty($mainpage_keywords)) {
-			$mainpage_keywords = "social network,join,register,members,". elgg_get_site_entity()->name;
-		}
+// Settings form
+/*
+echo elgg_view_field([
+    '#type' => 'select',
+    '#label' => elgg_echo('metatags:cloudflare'),
+    '#help' => elgg_echo('Enable Cloudflare integration for faster caching and SEO.'),
+    'name' => 'params[cloudflare]',
+    'value' => $values['cloudflare'],
+    'options_values' => $noyes_options,
+]);
+*/
 
+echo elgg_view_field([
+    '#type' => 'text',
+    '#label' => elgg_echo('metatags:mainpage:title'),
+    '#help' => elgg_echo('This title will be used as the default meta title for your site.'),
+    'name' => 'params[mainpage_title]',
+    'value' => $values['mainpage_title'],
+]);
 
-		$cloudflare  = $vars['entity']->cloudflare;
+echo elgg_view_field([
+    '#type' => 'text',
+    '#label' => elgg_echo('metatags:mainpage:description'),
+    '#help' => elgg_echo('Short description of your site (max ~160 characters). Used for SEO and social media previews.'),
+    'name' => 'params[mainpage_description]',
+    'value' => $values['mainpage_description'],
+]);
 
-		echo elgg_echo('metatags:cloudflare');
-		echo '<br>';
-		echo elgg_view("input/dropdown", ["name" => "params[cloudflare]", "value" => $cloudflare, "options_values" => $noyes_options]);
-		echo '<br><br>';
-		echo elgg_echo('metatags:mainpage:title');
-		echo elgg_view('input/text', ['name'=>'params[mainpage_title]', 'value'=>$mainpage_title]);
-		echo '<br><br>';
-		echo elgg_echo('metatags:mainpage:description');
-		echo elgg_view('input/text', ['name'=>'params[mainpage_description]', 'value'=>$mainpage_description]);
-		echo '<br><br>';
-		echo elgg_echo('metatags:mainpage:keywords');
-		echo elgg_view('input/text', ['name'=>'params[mainpage_keywords]', 'value'=>$mainpage_keywords]);
-		echo '<br><br>';
-		echo elgg_echo('metatags:mainpage:image');
-		echo elgg_view('input/url', ['name'=>'params[mainpage_image]', 'value'=>$mainpage_image]);
+echo elgg_view_field([
+    '#type' => 'text',
+    '#label' => elgg_echo('metatags:mainpage:keywords'),
+    '#help' => elgg_echo('Comma-separated keywords relevant to your site.'),
+    'name' => 'params[mainpage_keywords]',
+    'value' => $values['mainpage_keywords'],
+]);
+
+echo elgg_view_field([
+    '#type' => 'url',
+    '#label' => elgg_echo('metatags:mainpage:image'),
+    '#help' => elgg_echo('Default image (1200x630 recommended) used for social sharing when no entity image is available.'),
+    'name' => 'params[mainpage_image]',
+    'value' => $values['mainpage_image'],
+]);
