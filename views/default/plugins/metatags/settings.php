@@ -63,9 +63,9 @@ echo elgg_view_field([
 ]);
 
 echo elgg_view_field([
-    '#type' => 'url',
+    '#type' => 'text',
     '#label' => elgg_echo('metatags:mainpage:image'),
-    '#help' => elgg_echo('Default image (1200x630 recommended) used for social sharing when no entity image is available.'),
+    '#help' => elgg_echo('Default image (1200x630 recommended) used for social sharing when no entity image is available.<br>Please use a full URL if using a static image. Alternatively, please enter only the image path to use elgg simplecache_url function.'),
     'name' => 'params[mainpage_image]',
     'value' => $values['mainpage_image'],
 ]);
