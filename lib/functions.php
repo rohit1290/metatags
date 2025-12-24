@@ -63,7 +63,7 @@ function metatags_view_guid(\Elgg\Event $event) {
 	$return_value = $event->getValue();
 	
 	if (!empty($return_value['guid']) && !get_input('guid')) {
-		elgg_set_input('guid', (int) $return_value['guid']);
+		set_input('guid', (int) $return_value['guid']);
 	}
 	
 	return $return_value;
