@@ -1,71 +1,120 @@
 <?php
-/**
- * Elgg Metatags Plugin Settings (Elgg 6.3+)
- *
- * @author
- */
-
-$plugin = elgg_extract('entity', $vars);
-
-$noyes_options = [
-    "no" => elgg_echo("option:no"),
-    "yes" => elgg_echo("option:yes"),
-];
-
-$defaults = [
-    'mainpage_title' => elgg_get_site_entity()->name . " - Social Network",
-    'mainpage_description' => elgg_get_site_entity()->name . " is a social network for people with interest in ....",
-    'mainpage_keywords' => "social network, join, register, members, " . elgg_get_site_entity()->name,
-    'mainpage_image' => '',
-    'cloudflare' => 'no',
-];
-
-// Merge plugin settings with defaults
-$values = [];
-foreach ($defaults as $key => $default) {
-    $values[$key] = $plugin->$key ?? $default;
-}
-
-// Settings form
-/*
-echo elgg_view_field([
-    '#type' => 'select',
-    '#label' => elgg_echo('metatags:cloudflare'),
-    '#help' => elgg_echo('Enable Cloudflare integration for faster caching and SEO.'),
-    'name' => 'params[cloudflare]',
-    'value' => $values['cloudflare'],
-    'options_values' => $noyes_options,
-]);
-*/
-
-echo elgg_view_field([
-    '#type' => 'text',
-    '#label' => elgg_echo('metatags:mainpage:title'),
-    '#help' => elgg_echo('This title will be used as the default meta title for your site.'),
-    'name' => 'params[mainpage_title]',
-    'value' => $values['mainpage_title'],
-]);
-
-echo elgg_view_field([
-    '#type' => 'text',
-    '#label' => elgg_echo('metatags:mainpage:description'),
-    '#help' => elgg_echo('Short description of your site (max ~160 characters). Used for SEO and social media previews.'),
-    'name' => 'params[mainpage_description]',
-    'value' => $values['mainpage_description'],
-]);
-
 echo elgg_view_field([
     '#type' => 'text',
     '#label' => elgg_echo('metatags:mainpage:keywords'),
-    '#help' => elgg_echo('Comma-separated keywords relevant to your site.'),
+    '#help' => elgg_echo('metatags:mainpage:keywordshelp'),
     'name' => 'params[mainpage_keywords]',
-    'value' => $values['mainpage_keywords'],
+    'value' => $vars['entity']->mainpage_keywords,
+]);
+
+echo elgg_view_field([
+    '#type' => 'url',
+    '#label' => elgg_echo('metatags:mainpage:image'),
+    '#help' => elgg_echo('metatags:mainpage:imagehelp'),
+    'name' => 'params[mainpage_image]',
+    'value' => $vars['entity']->mainpage_image,
+]);
+
+echo elgg_view_field([
+    '#type' => 'email',
+    '#label' => elgg_echo('metatags:mainpage:email'),
+    '#help' => elgg_echo('metatags:mainpage:emailhelp'),
+    'name' => 'params[mainpage_email]',
+    'value' => $vars['entity']->mainpage_email,
 ]);
 
 echo elgg_view_field([
     '#type' => 'text',
-    '#label' => elgg_echo('metatags:mainpage:image'),
-    '#help' => elgg_echo('Default image (1200x630 recommended) used for social sharing when no entity image is available.<br>Please use a full URL if using a static image. Alternatively, please enter only the image path to use elgg simplecache_url function.'),
-    'name' => 'params[mainpage_image]',
-    'value' => $values['mainpage_image'],
+    '#label' => elgg_echo('metatags:mainpage:phone_number'),
+    '#help' => elgg_echo('metatags:mainpage:phone_numberhelp'),
+    'name' => 'params[mainpage_phone_number]',
+    'value' => $vars['entity']->mainpage_phone_number,
+]);
+
+echo elgg_view_field([
+    '#type' => 'text',
+    '#label' => elgg_echo('metatags:mainpage:fax_number'),
+    '#help' => elgg_echo('metatags:mainpage:fax_numberhelp'),
+    'name' => 'params[mainpage_fax_number]',
+    'value' => $vars['entity']->mainpage_fax_number,
+]);
+
+echo elgg_view_field([
+    '#type' => 'text',
+    '#label' => elgg_echo('metatags:mainpage:locality'),
+    '#help' => elgg_echo('metatags:mainpage:localityhelp'),
+    'name' => 'params[mainpage_locality]',
+    'value' => $vars['entity']->mainpage_locality,
+]);
+
+echo elgg_view_field([
+    '#type' => 'text',
+    '#label' => elgg_echo('metatags:mainpage:region'),
+    '#help' => elgg_echo('metatags:mainpage:regionhelp'),
+    'name' => 'params[mainpage_region]',
+    'value' => $vars['entity']->mainpage_region,
+]);
+
+echo elgg_view_field([
+    '#type' => 'number',
+    '#label' => elgg_echo('metatags:mainpage:postal'),
+    '#help' => elgg_echo('metatags:mainpage:postalhelp'),
+    'name' => 'params[mainpage_postal]',
+    'value' => $vars['entity']->mainpage_postal,
+]);
+
+echo elgg_view_field([
+    '#type' => 'text',
+    '#label' => elgg_echo('metatags:mainpage:country'),
+    '#help' => elgg_echo('metatags:mainpage:countryhelp'),
+    'name' => 'params[mainpage_country]',
+    'value' => $vars['entity']->mainpage_country,
+]);
+
+echo elgg_view_field([
+    '#type' => 'url',
+    '#label' => elgg_echo('metatags:mainpage:facebook'),
+    '#help' => elgg_echo('metatags:mainpage:facebookhelp'),
+    'name' => 'params[facebook]',
+    'value' => $vars['entity']->facebook,
+]);
+
+echo elgg_view_field([
+    '#type' => 'url',
+    '#label' => elgg_echo('metatags:mainpage:twitter'),
+    '#help' => elgg_echo('metatags:mainpage:twitterhelp'),
+    'name' => 'params[twitter]',
+    'value' => $vars['entity']->twitter,
+]);
+
+echo elgg_view_field([
+    '#type' => 'url',
+    '#label' => elgg_echo('metatags:mainpage:linkedin'),
+    '#help' => elgg_echo('metatags:mainpage:linkedinhelp'),
+    'name' => 'params[linkedin]',
+    'value' => $vars['entity']->linkedin,
+]);
+
+echo elgg_view_field([
+    '#type' => 'url',
+    '#label' => elgg_echo('metatags:mainpage:instagram'),
+    '#help' => elgg_echo('metatags:mainpage:instagramhelp'),
+    'name' => 'params[instagram]',
+    'value' => $vars['entity']->instagram,
+]);
+
+echo elgg_view_field([
+    '#type' => 'url',
+    '#label' => elgg_echo('metatags:mainpage:youtube'),
+    '#help' => elgg_echo('metatags:mainpage:youtubehelp'),
+    'name' => 'params[youtube]',
+    'value' => $vars['entity']->youtube,
+]);
+
+echo elgg_view_field([
+    '#type' => 'url',
+    '#label' => elgg_echo('metatags:mainpage:pintrest'),
+    '#help' => elgg_echo('metatags:mainpage:pintresthelp'),
+    'name' => 'params[pintrest]',
+    'value' => $vars['entity']->pintrest,
 ]);

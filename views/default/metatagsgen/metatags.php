@@ -1,196 +1,271 @@
 <?php
-/**
-* Elgg Metatags generator plugin (Elgg 6.3+)
-*
-* Supports user_metatag & group_metatag
-* Adds JSON-LD schema.org for SEO
-* @license GNU GPL v2
-*/
+$context = elgg_get_context();
+if($context == "admin") {	return; }
 
-$title = (string) elgg_extract('title', $vars, elgg_get_site_entity()->name);
-$site = elgg_get_site_entity();
-$site_name = $site->getDisplayName();
-$site_url = $site->getURL();
+$jsonld = [];
 
-$guid = elgg_extract('guid', $vars);
-$cguid = elgg_extract('container_guid', $vars);
-
+$meta_guid = get_input('meta_guid');
 $entity = null;
-if ($cguid) {
-	$entity = get_entity($cguid);
-} elseif ($guid) {
-	$entity = get_entity($guid);
-} else {
-	$entity = elgg_extract('entity', $vars);
+if($meta_guid > 0) {
+	$entity = get_entity($meta_guid);
 }
-
+$page_guid = elgg_get_page_owner_guid();
 $page_owner = elgg_get_page_owner_entity();
-$meta_description = (string) elgg_get_plugin_setting("mainpage_description", "metatags", '');
-$mainpage_image = elgg_get_plugin_setting("mainpage_image", "metatags");
-if (!empty($mainpage_image)) {
-	if (!filter_var($mainpage_image, FILTER_VALIDATE_URL)) {
-		$mainpage_image = elgg_get_simplecache_url($mainpage_image);
-	}
+$url = elgg_get_current_url();
+
+$meta = new \MetaTags\MetaManager();
+$meta->setURL($url);
+$meta->set('og:type', $context);
+
+$title = elgg_extract('title', $vars);
+$title_flag = 0;
+if(!empty($title)) {
+	$meta->setTitle($title);
+	$title_flag = 1;
 }
-$author           = $site_name;
-$tags             = [];
-$jsonld           = []; // schema.org data
 
-/**
- * USER METATAGS
- */
-if ($page_owner instanceof ElggUser) {
-	$title = $page_owner->getDisplayName() . " - " . $site_name;
-	$author = $page_owner->getDisplayName();
+$jsonld[] = [
+	"@context" => "https://schema.org",
+	"@type" => "Organization",
+	"name" => $meta->getSite('name'),
+	"description" => $meta->getSite('description'),
+	"url" => $meta->getSite('url'),
+	"logo" => $meta->getSite('image'),
+	'email' => $meta->getSite('email'),
+	'telephone' => $meta->getSite('phone_number'),
+	"address" => [
+    "@type" => "PostalAddress",
+    "addressLocality" => $meta->getSite('locality'),
+    "addressRegion" => $meta->getSite('region'),
+    "postalCode" => $meta->getSite('postal'),
+    "addressCountry" => $meta->getSite('country'),
+  ],
+	"sameAs" => [
+		$meta->getSite('facebook'),
+		$meta->getSite('twitter'),
+		$meta->getSite('linkedin'),
+		$meta->getSite('instagram'),
+		$meta->getSite('youtube'),
+		$meta->getSite('pintrest'),
+	],
+];
 
-	// Description
-	if (!empty($page_owner->briefdescription)) {
-		$meta_description = elgg_get_excerpt((string) $page_owner->briefdescription, 160);
-	} elseif (!empty($page_owner->description)) {
-		$meta_description = elgg_get_excerpt((string) $page_owner->description, 160);
+if ($entity instanceof ElggEntity) {
+	// var_dump("Metatags for ElggObject - $context");
+	if($title_flag == 0) {
+		$title = $entity->getDisplayName() . " : " . $meta->getSite('name');
+		$meta->setTitle($title);
 	}
+	$meta->set('owner', $page_owner->getDisplayName());
+	if (!empty($entity->briefdescription)) {
+		$meta->setDescription(elgg_get_excerpt((string) $entity->briefdescription, 160));
+	} elseif (!empty($entity->description)) {
+		$meta->setDescription(elgg_get_excerpt((string) $entity->description, 160));
+	}
+	$meta->setImage($page_owner->getIconURL(['size' => 'large']));
+	$meta->addKeyword($entity->getDisplayName());
+	if (!empty($entity->tags)) {
+		$meta->addKeyword($entity->tags);
+	}
+	
+	
+	$meta->set('revised',  date('Y-m-d', $entity->time_updated));
+	$meta->set('topic',  $entity->getDisplayName());
+	if($entity->getOwnerEntity() instanceof ElggUser) {
+		$meta->set('author', $entity->getOwnerEntity()->getDisplayName());
+	}
+	if (!empty($entity->briefdescription)) {
+		$meta->set('summary', elgg_get_excerpt((string) $entity->briefdescription, 160));
+	} elseif (!empty($entity->description)) {
+		$meta->set('summary', elgg_get_excerpt((string) $entity->description, 160));
+	}
+	
+	$tmp = [
+		"@context" => "https://schema.org",
+		"name" => $meta->get('topic'),
+		"description" => $meta->get('summary'),
+		"url" => $meta->get('og:url'),
+		"image" => $meta->get('og:image'),
+	];
+	
+	switch ($entity->getSubtype()) {
+		case 'events':
+			$tmp = array_merge($tmp, [
+				"@type" => "Event",
+			  "startDate" => date('Y-m-d', $entity->event_start),
+			  "endDate" => date('Y-m-d',  $entity->event_end),
+			  "location" => [
+			    "@type" => "Place",
+			    "name" => $entity->region,
+			    "address" => [
+			      "@type" => "PostalAddress",
+			      "streetAddress" => $entity->location,
+			    ]
+			  ],
+			  "Organization" => [
+			    "@type" => "EventOrganizer",
+			    "name" => $entity->organizer
+			  ]
+			]);
+			break;
+		
+		case 'blog':
+			$tmp = array_merge($tmp, [
+				"@type" => "BlogPosting",
+				"headline" => $meta->get('topic'),
+				"editor" => $meta->get('author'),
+				"keywords" => $meta->get('tags'),
+				"wordcount" => "1120",
+				"publisher" => $meta->get('owner'),
+				"datePublished" => date('Y-m-d', $entity->time_created),
+				"dateCreated" => date('Y-m-d', $entity->time_created),
+				"dateModified" => date('Y-m-d', $entity->time_updated),
+				"articleBody" => trim($entity->description),
+				"author" => [
+					"@type" => "Person",
+					"name" => $meta->get('author'),
+				]
+			]);
+			break;
 
-	// Profile photo
-	$mainpage_image = $page_owner->getIconURL(['size' => 'large']);
+		case 'file':
+			$tmp = array_merge($tmp, [
+				"@type" => "MediaObject",
+				"contentUrl" => $entity->getDownloadURL(),
+				"encodingFormat" => $entity->getMimeType(),
+				"fileSize" => $entity->getSize(),
+				"uploadDate" => date('Y-m-d', $entity->getModifiedTime()),
+			]);
+			break;
+		
+		default:
+			break;
+	}
+	
+	$jsonld[] = $tmp;
+	
 
-	// Keywords
-	$tags[] = $page_owner->getDisplayName();
+} elseif ($page_owner instanceof ElggUser) {
+	// var_dump("Metatags for user pages (settings, profile, messages etc) - $context");
+	if($title_flag == 0) {
+		$title = $page_owner->getDisplayName() . " : " . $meta->getSite('name');
+		$meta->setTitle($title);
+	}
+	$meta->set('owner', $page_owner->getDisplayName());
+	
+	if (!empty($page_owner->briefdescription)) {
+		$meta->setDescription(elgg_get_excerpt((string) $page_owner->briefdescription, 160));
+	} elseif (!empty($page_owner->description)) {
+		$meta->setDescription(elgg_get_excerpt((string) $page_owner->description, 160));
+	}
+	$meta->setImage($page_owner->getIconURL(['size' => 'large']));
+	$meta->addKeyword($page_owner->getDisplayName());
 	if (!empty($page_owner->skills)) {
-		$tags = array_merge($tags, (array) $page_owner->skills);
+		$meta->addKeyword($page_owner->skills);
 	}
 	if (!empty($page_owner->interests)) {
-		$tags = array_merge($tags, (array) $page_owner->interests);
+		$meta->addKeyword($page_owner->interests);
 	}
 	if (!empty($page_owner->location)) {
-		$tags[] = $page_owner->location;
+		$meta->addKeyword($page_owner->location);
 	}
-
-	// JSON-LD Person schema
-	$jsonld = [
+	
+	$jsonld[] = [
 		"@context" => "https://schema.org",
 		"@type" => "Person",
-		"name" => $page_owner->getDisplayName(),
-		"description" => $meta_description,
-		"url" => elgg_get_current_url(),
-		"image" => $mainpage_image,
+		"name" => $meta->get('og:title'),
+		"description" => $meta->get('og:description'),
+		"url" => $meta->get('og:url'),
+		"image" => $meta->get('og:image'),
 		"memberOf" => [
 			"@type" => "Organization",
-			"name" => $site_name,
-			"url" => $site_url,
-		],
+			"name" => $meta->getSite('name'),
+			"url" => $meta->getSite('url'),
+		]
 	];
-}
-
-/**
- * GROUP METATAGS
- */
-elseif ($page_owner instanceof ElggGroup) {
-	$title = $page_owner->getDisplayName() . " - " . $site_name;
-	$author = $page_owner->getOwnerEntity() instanceof ElggUser
-		? $page_owner->getOwnerEntity()->getDisplayName()
-		: $site_name;
-
+} elseif ($page_owner instanceof ElggGroup) {
+	// var_dump("Metatags for generic pages (inside group) - $context");
+	if($title_flag == 0) {
+		$title = $page_owner->getDisplayName() . " : " . $meta->getSite('name');
+		$meta->setTitle($title);
+	}
+	if($page_owner->getOwnerEntity() instanceof ElggUser) {
+		$meta->set('owner', $page_owner->getOwnerEntity()->getDisplayName());
+	}
 	if (!empty($page_owner->description)) {
-		$meta_description = elgg_get_excerpt((string) $page_owner->description, 160);
+		$meta->setDescription(elgg_get_excerpt((string) $page_owner->description, 160));
 	}
-
-	$mainpage_image = $page_owner->getIconURL(['size' => 'large']);
-
-	$tags[] = $page_owner->getDisplayName();
+	$meta->setImage($page_owner->getIconURL(['size' => 'large']));
+	$meta->addKeyword($page_owner->getDisplayName());
 	if (!empty($page_owner->tags)) {
-		$tags = array_merge($tags, (array) $page_owner->tags);
+		$meta->addKeyword($page_owner->tags);
 	}
-
-	// JSON-LD Organization schema
-	$jsonld = [
+	
+	$jsonld[] = [
 		"@context" => "https://schema.org",
 		"@type" => "Organization",
-		"name" => $page_owner->getDisplayName(),
-		"description" => $meta_description,
-		"url" => elgg_get_current_url(),
-		"image" => $mainpage_image,
+		"name" => $meta->get('og:title'),
+		"description" => $meta->get('og:description'),
+		"url" => $meta->get('og:url'),
+		"image" => $meta->get('og:image'),
 		"parentOrganization" => [
 			"@type" => "Organization",
-			"name" => $site_name,
-			"url" => $site_url,
+			"name" => $meta->getSite('name'),
+			"url" => $meta->getSite('url'),
 		],
 	];
+	
+} else {
+	// var_dump("Metatags for Generic (not matching any condition above) - $context");
+	// TBD: Don't think we would have any such situation. If there is any the default meta would be shown.
+	// To be removed in the future.
 }
 
-/**
- * GENERIC ENTITY METATAGS
- */
-elseif ($entity instanceof ElggEntity) {
-	if (!empty($entity->description)) {
-		$meta_description = elgg_get_excerpt((string) $entity->description, 160);
-	}
-	$mainpage_image = $entity->getIconURL(['size' => 'large']);
-	if (!empty($entity->tags)) {
-		$tags = array_merge($tags, (array) $entity->tags);
-	}
+$data = array_filter($meta->getAll(), function($value) {
+	return $value !== '';
+});
 
-	// JSON-LD generic CreativeWork schema
-	$jsonld = [
-		"@context" => "https://schema.org",
-		"@type" => "CreativeWork",
-		"name" => $title,
-		"description" => $meta_description,
-		"url" => elgg_get_current_url(),
-		"image" => $mainpage_image,
-	];
-}
-
-// Add plugin keywords
-$plugin_keywords = elgg_get_plugin_setting("mainpage_keywords", "metatags");
-if ($plugin_keywords) {
-	$tags[] = $plugin_keywords;
-}
-$tags = implode(",", array_filter($tags));
-
-// Canonical URL
-$current_url = elgg_get_current_url();
-
-/**
- * OUTPUT META TAGS
- */
+/*****************************************
+  Output the metatags
+*****************************************/
+// Site Title
 echo elgg_format_element('title', [], $title);
-
-echo elgg_format_element('link', [
-	'rel' => 'canonical',
-	'href' => $current_url,
-]);
-
-echo elgg_format_element('meta', ['name' => 'author', 'content' => $author]);
-echo elgg_format_element('meta', ['name' => 'keywords', 'content' => $tags]);
-echo elgg_format_element('meta', ['name' => 'description', 'content' => $meta_description]);
-
-// Open Graph
-echo elgg_format_element('meta', ['property' => 'og:title', 'content' => $title]);
-echo elgg_format_element('meta', ['property' => 'og:description', 'content' => $meta_description]);
-echo elgg_format_element('meta', ['property' => 'og:type', 'content' => 'website']);
-echo elgg_format_element('meta', ['property' => 'og:url', 'content' => $current_url]);
-echo elgg_format_element('meta', ['property' => 'og:image', 'content' => $mainpage_image]);
-echo elgg_format_element('meta', ['property' => 'og:site_name', 'content' => $site_name]);
-
-// Twitter Cards
-echo elgg_format_element('meta', ['name' => 'twitter:card', 'content' => 'summary_large_image']);
-echo elgg_format_element('meta', ['name' => 'twitter:title', 'content' => $title]);
-echo elgg_format_element('meta', ['name' => 'twitter:description', 'content' => $meta_description]);
-echo elgg_format_element('meta', ['name' => 'twitter:url', 'content' => $current_url]);
-echo elgg_format_element('meta', ['name' => 'twitter:image', 'content' => $mainpage_image]);
-
-// Robots (optional)
-echo elgg_format_element('meta', ['name' => 'robots', 'content' => 'index, follow']);
-
-// JSON-LD Schema.org
-if (!empty($jsonld)) {
-	echo '<script type="application/ld+json">' . json_encode($jsonld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . '</script>';
+// Site Link
+echo elgg_format_element('link', ['rel' => 'canonical',	'href' => $url]);
+// Site Meta
+foreach ($data as $key => $value) {
+	echo elgg_format_element('meta', ['name' => $key, 'content' => $value]);
 }
 
-// Allow extensions via plugin hook
-// $extra_meta = elgg_trigger_plugin_hook('meta_tags', 'head', $vars, []);
-// if (is_array($extra_meta)) {
-// 	foreach ($extra_meta as $tag) {
-// 		echo $tag;
-// 	}
-// }
+// Print the data for debuggin
+// echo "<pre>";
+// print_r($data);
+// echo "</pre>";
+
+
+// Site JSON-LD
+if (!empty($jsonld)) {
+	foreach ($jsonld as $json) {
+		// Remove empty values recursively
+		$filtered = array_filter($json, function ($value) {
+			if (is_array($value)) {
+				$value = array_filter($value, function ($v) {
+					return !empty($v);
+				});
+				return !empty($value);
+			}
+			return !empty($value);
+		});
+		echo elgg_format_element('script', [
+			'type' => 'application/ld+json',
+		], json_encode(
+			$filtered,
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
+		));
+		
+		// Print the jsonld for debuggin
+		// echo "<pre>";
+		// print_r($filtered);
+		// echo "</pre>";
+	}
+}

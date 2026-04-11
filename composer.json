@@ -9,9 +9,6 @@
 		"source": "https://github.com/rohit1290/metatags",
 		"issues": "https://github.com/rohit1290/metatags/issues"
 	},
-	"require": {
-		"composer/installers": "^1.0.8"
-	},
 	"conflict": {
 		"elgg/elgg": "<6.0"
 	}
