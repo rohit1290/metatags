@@ -9,8 +9,14 @@ $entity = null;
 if($meta_guid > 0) {
 	$entity = get_entity($meta_guid);
 }
-$page_guid = elgg_get_page_owner_guid();
 $page_owner = elgg_get_page_owner_entity();
+if($page_owner == null && $entity != null) {
+	$page_owner_guid = $entity->container_guid ?: $entity->owner_guid;
+	$page_owner = get_entity($page_owner_guid);
+}
+if($page_owner == null) {
+	return;
+}
 $url = elgg_get_current_url();
 
 $meta = new \MetaTags\MetaManager();
