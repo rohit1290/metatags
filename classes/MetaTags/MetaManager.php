@@ -149,11 +149,13 @@ class MetaManager {
   /**
 	 * Add Keywords to existing list
 	 */
-	public function addKeyword(string $value): self {
-    $tags = [];
-    $tags = array_map('trim', explode(",", $this->meta['keywords']));
-		$tags = array_merge($tags, (array) trim($value));
-		$this->meta['keywords'] = implode(", ", $tags);
+	public function addKeyword($value): self {
+		$existing = $this->meta['keywords'] ?? '';
+    $tags = array_filter(array_map('trim', explode(',', $existing)));
+		$newTags = is_array($value) ? $value : [$value];
+		$newTags = array_filter(array_map('trim', $newTags));
+		$tags = array_unique(array_merge($tags, $newTags));
+		$this->meta['keywords'] = implode(', ', $tags);
 		return $this;
 	}
   
