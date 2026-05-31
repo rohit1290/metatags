@@ -14,7 +14,7 @@ if($page_owner == null && $entity != null) {
 	$page_owner_guid = $entity->container_guid ?: $entity->owner_guid;
 	$page_owner = get_entity($page_owner_guid);
 }
-if($page_owner == null) {
+if ($entity instanceof ElggObject && $page_owner == null) {
 	return;
 }
 $url = elgg_get_current_url();
