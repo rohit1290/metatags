@@ -23,7 +23,7 @@ Changes:
 $metas = elgg_extract('metas', $vars, []);
 foreach ($metas as $attributes) {
   // 5/30: Added below line:
-  if($attributes['name'] == "description") { continue; }
+  if (($attributes['name'] ?? '') === 'description') { continue; }
 	echo elgg_format_element('meta', $attributes);
 }
 
