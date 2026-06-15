@@ -1,4 +1,6 @@
 <?php
+include_once __DIR__ . "/lib/functions.php";
+
 return [
 	'plugin' => [
 		'name' => 'Metatags',

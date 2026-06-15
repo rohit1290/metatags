@@ -10,15 +10,17 @@
  */
 
 /*
-5/30/2026: Copy of "head.php"
+6/15/2026: Copy of "head.php"
 Commit: https://github.com/Elgg/Elgg/commit/6659eb162f66bfc39d8f6ad1a3794811ee27d323
 Changes:
-1. Removed "title"
-2. Removed "description"
+1. Only show title for pages like admin, changepassword etc. (Page defined at meta_skipp_pages())
+2. Removed "description" - Not needed for admin, changepassword pages.
 */
 
 // 5/30: Removed below line:
-// echo elgg_format_element('title', [], (string) elgg_extract('title', $vars), ['encode_text' => true]);
+if(meta_skip_pages(elgg_get_context())) {
+  echo elgg_format_element('title', [], (string) elgg_extract('title', $vars), ['encode_text' => true]);
+}
 
 $metas = elgg_extract('metas', $vars, []);
 foreach ($metas as $attributes) {

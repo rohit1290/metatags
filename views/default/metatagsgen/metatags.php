@@ -1,7 +1,8 @@
 <?php
 $context = elgg_get_context();
-if($context == "admin") {	return; }
-if($context == "changepassword") {	return; }
+if(meta_skip_pages($context)) {
+	return;
+}
 
 $jsonld = [];
 
