@@ -26,12 +26,12 @@ class MetaManager {
       'region' => $this->safe(elgg_get_plugin_setting("mainpage_region", "metatags")),
       'postal' => $this->safe(elgg_get_plugin_setting("mainpage_postal", "metatags")),
       'country' => $this->safe(elgg_get_plugin_setting("mainpage_country", "metatags")),
-			'facebook' => $this->safe(elgg_get_plugin_setting("mainpage_facebook", "metatags")),
-      'twitter' => $this->safe(elgg_get_plugin_setting("mainpage_twitter", "metatags")),
-			'linkedin' => $this->safe(elgg_get_plugin_setting("mainpage_linkedin", "metatags")),
-      'instagram' => $this->safe(elgg_get_plugin_setting("mainpage_instagram", "metatags")),
-			'youtube' => $this->safe(elgg_get_plugin_setting("mainpage_youtube", "metatags")),
-			'pintrest' => $this->safe(elgg_get_plugin_setting("mainpage_pintrest", "metatags")),
+			'facebook' => $this->safe(elgg_get_plugin_setting("facebook", "metatags")),
+      'twitter' => $this->safe(elgg_get_plugin_setting("twitter", "metatags")),
+			'linkedin' => $this->safe(elgg_get_plugin_setting("linkedin", "metatags")),
+      'instagram' => $this->safe(elgg_get_plugin_setting("instagram", "metatags")),
+			'youtube' => $this->safe(elgg_get_plugin_setting("youtube", "metatags")),
+			'pintrest' => $this->safe(elgg_get_plugin_setting("pintrest", "metatags")),
     ];
 
 		$this->meta = [
